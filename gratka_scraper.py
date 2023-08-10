@@ -10,7 +10,7 @@ import re
 from tqdm import tqdm
 
 
-class GratkaScrapper:
+class GratkaScraper:
     def __init__(self):
         pass
 
