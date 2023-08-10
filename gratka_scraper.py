@@ -104,16 +104,13 @@ class GratkaScraper:
                 response = requests.get(url)
                 response.raise_for_status()  # Sprawdzenie, czy odpowiedź jest poprawna
                 image = Image.open(BytesIO(response.content))
-                # Konwertuj obraz na skalę szarości
+
                 # image = image.convert("L")
 
-                # Zmniejsz rozmiar obrazu
                 if img_shape is not None:
                     image = image.resize(img_shape)
 
-                image_extension = os.path.splitext(url)[-1].split("?")[
-                    0
-                ]  # Pobranie rozszerzenia pliku
+                image_extension = os.path.splitext(url)[-1].split("?")[0]
                 image_path = os.path.join(
                     save_path, f"{page_id}_image_{i}{image_extension}"
                 )
