@@ -160,3 +160,4 @@ cython_debug/
 #.idea/
 
 data/
+!data/descriptions/training_data_recznie_poprawione.csv
