@@ -27,7 +27,6 @@ pandas==2.0.3
 pathy==0.10.2
 Pillow==10.0.0
 pipreqs==0.4.13
-pl-core-news-md==3.6.0
 preshed==3.0.8
 pydantic==2.3.0
 pydantic_core==2.6.3
