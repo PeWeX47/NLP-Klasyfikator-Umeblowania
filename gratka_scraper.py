@@ -71,6 +71,7 @@ class GratkaScraper:
         image_urls = []
 
         for url in offers_urls:
+            offer = []
             response = requests.get(url)
             if response.status_code == 200:
                 response_parsed = BeautifulSoup(response.text, "html.parser")
@@ -88,7 +89,9 @@ class GratkaScraper:
                     data_json = json.loads(data_json_str)[0]
 
                     for data in data_json["data"]:
-                        image_urls.append(data["url"])
+                        offer.append(data["url"])
+
+                    image_urls.append(offer)
 
                 else:
                     print("dataJson nie znaleziony w tagu Script")
@@ -98,37 +101,41 @@ class GratkaScraper:
 
         return image_urls
 
-    def __get_images(self, images_urls, save_path, page_id, img_shape=None):
-        for i, url in enumerate(tqdm(images_urls, desc=f"Postęp pobierania obrazów")):
-            try:
-                response = requests.get(url)
-                response.raise_for_status()  # Sprawdzenie, czy odpowiedź jest poprawna
-                image = Image.open(BytesIO(response.content))
+    def __get_images(self, images_urls, save_path, img_shape=None):
+        for i, offer in enumerate(tqdm(images_urls, desc=f"Postęp pobierania obrazów")):
+            for j, url in enumerate(offer):
+                try:
+                    response = requests.get(url)
+                    response.raise_for_status()
+                    image = Image.open(BytesIO(response.content))
 
-                # image = image.convert("L")
+                    if img_shape is not None:
+                        image = image.resize(img_shape)
 
-                if img_shape is not None:
-                    image = image.resize(img_shape)
+                    image_extension = os.path.splitext(url)[-1].split("?")[0]
 
-                image_extension = os.path.splitext(url)[-1].split("?")[0]
-                image_path = os.path.join(
-                    save_path, f"{page_id}_image_{i}{image_extension}"
-                )
+                    image_path = save_path + f"/{i}"
 
-                image.save(image_path)
-                # print(f"Zapisano zdjęcie {i+1}/{len(images_urls)}: {image_path}")
-            except Exception as e:
-                print(f"Nie udało się pobrać i zapisać zdjęcia {i+1}: {e}")
+                    if not os.path.exists(image_path):
+                        os.makedirs(image_path)
+
+                    image.save(save_path + f"/{i}/" + f"image_{j}{image_extension}")
+
+                except Exception as e:
+                    print(f"Nie udało się pobrać i zapisać zdjęcia {i+1}: {e}")
 
     def image_scrapper(self, pages_from, pages_to, save_path, img_shape=None):
-        """Zapisuje w określonym katalogu obrazy z ofert na podstawie podanego zakresu stron"""
+        """
+        Zapisuje w określonym katalogu obrazy z ofert na podstawie podanego zakresu stron.
+        Obrazy z każdej oferty zapisywane są w osobnym katalogu.
+        """
 
+        images_urls = []
         for page_id in range(pages_from, pages_to + 1):
             if not os.path.exists(save_path + f"/{page_id}"):
                 os.makedirs(save_path + f"/{page_id}")
 
             offers_urls = self.__get_offers_urls(page_id)
             images_urls = self.__get_images_urls(offers_urls)
-            self.__get_images(
-                images_urls, save_path + f"/{page_id}", page_id, img_shape
-            )
+
+        self.__get_images(images_urls, save_path, img_shape)
