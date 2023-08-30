@@ -130,12 +130,8 @@ class GratkaScraper:
         Obrazy z każdej oferty zapisywane są w osobnym katalogu.
         """
 
-        images_urls = []
         for page_id in range(pages_from, pages_to + 1):
-            if not os.path.exists(save_path + f"/{page_id}"):
-                os.makedirs(save_path + f"/{page_id}")
-
             offers_urls = self.__get_offers_urls(page_id)
             images_urls = self.__get_images_urls(offers_urls)
 
-        self.__get_images(images_urls, save_path, img_shape)
+            self.__get_images(images_urls, save_path + f"/strona_{page_id}", img_shape)
